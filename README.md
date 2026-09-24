@@ -22,6 +22,17 @@ El núcleo de la solución se basa en un flujo de procesamiento de lenguaje natu
 5.  **[ ] Hito 5:** Integración de OCI SDK para la subida de archivos.
 6.  **[ ] Hito 6:** Pruebas de integración, validación de fidelidad (*anclaje_fuente_score*) y preparación para la interfaz interactiva.
 
+## Estructura del Repositorio 
+
+/
+├── data/               # Documentos PDF, MD o TXT de prueba
+├── src/                # Carpeta para el código fuente principal
+│   └── ingestion.py    # El script que desarrollarás esta semana
+├── notebooks/          # Para experimentos interactivos o pruebas de embeddings del equipo
+├── .gitignore          # Fundamental para evitar subir credenciales o archivos basura
+├── requirements.txt    # Tu lista de dependencias (LangChain, PyPDF, etc.)
+└── README.md           # El archivo que ya existe
+
 ## 🚀 Instalación y Uso (Entorno Local)
 
 Para replicar este entorno de pruebas:
