@@ -3,7 +3,7 @@
 Bienvenido al entorno de desarrollo y experimentación privado para **NuevaMente**. Este repositorio sirve como área de pruebas (*sandbox*) para diseñar, iterar y consolidar la arquitectura de datos y los modelos de inteligencia artificial antes de integrarlos al repositorio oficial del equipo en el Hackathon ONE (Grupo 10).
 
 ## 🎯 Objetivo del Proyecto
-Construir un sistema inteligente capaz de ingerir documentaciones técnicas complejas (PDF, Markdown, texto) y transformarlas automáticamente en contenidos educativos personalizados[cite: 1]. El sistema ajusta el material según el perfil del destinatario (ej. Principiante, Arquitecto) y el formato pedagógico deseado (ej. Flashcards, Quizzes, Resúmenes).
+Construir un sistema inteligente capaz de ingerir documentaciones técnicas complejas (PDF, Markdown, texto) y transformarlas automáticamente en contenidos educativos personalizados. El sistema ajusta el material según el perfil del destinatario (ej. Principiante, Arquitecto) y el formato pedagógico deseado (ej. Flashcards, Quizzes, Resúmenes).
 
 ## ⚙️ Enfoque Técnico y Arquitectura
 El núcleo de la solución se basa en un flujo de procesamiento de lenguaje natural (NLP) estructurado para garantizar la fidelidad técnica y evitar alucinaciones:
@@ -22,16 +22,18 @@ El núcleo de la solución se basa en un flujo de procesamiento de lenguaje natu
 5.  **[ ] Hito 5:** Integración de OCI SDK para la subida de archivos.
 6.  **[ ] Hito 6:** Pruebas de integración, validación de fidelidad (*anclaje_fuente_score*) y preparación para la interfaz interactiva.
 
-## Estructura del Repositorio 
+## 📁 Estructura del Proyecto
 
-/
+```text
+.
 ├── data/               # Documentos PDF, MD o TXT de prueba
 ├── src/                # Carpeta para el código fuente principal
-│   └── ingestion.py    # El script que desarrollarás esta semana
-├── notebooks/          # Para experimentos interactivos o pruebas de embeddings del equipo
-├── .gitignore          # Fundamental para evitar subir credenciales o archivos basura
-├── requirements.txt    # Tu lista de dependencias (LangChain, PyPDF, etc.)
-└── README.md           # El archivo que ya existe
+│   └── ingestion.py    # Script de ingesta y procesamiento
+├── notebooks/          # Experimentos interactivos o pruebas de embeddings
+├── .gitignore          # Reglas para omitir archivos y credenciales
+├── requirements.txt    # Dependencias del proyecto (LangChain, PyPDF, etc.)
+└── README.md           # Documentación del proyecto
+```
 
 ## 🚀 Instalación y Uso (Entorno Local)
 
@@ -39,7 +41,7 @@ Para replicar este entorno de pruebas:
 
 1. Clonar este repositorio:
     ```bash
-    git clone [https://github.com/tu-usuario/proyecto-nuevamente-sandbox.git](https://github.com/tu-usuario/proyecto-nuevamente-sandbox.git)
+    git clone https://github.com/tu-usuario/proyecto-nuevamente-sandbox.git
     cd proyecto-nuevamente-sandbox
     ```
 
