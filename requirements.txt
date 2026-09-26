@@ -1,11 +1,20 @@
 # Orquestación y NLP
 langchain
 langchain-community
+langchain-text-splitters
 
 # Procesamiento de documentos (Ingesta)
 pypdf
 unstructured
 markdown
+
+# Base de Datos Vectorial (Hito 2)
+faiss-cpu
+
+# Modelos y LLMs (Google Gemini)
+langchain-google-genai
+google-generativeai
+pydantic
 
 # Integración con la nube
 oci
