@@ -26,3 +26,6 @@ Thumbs.db
 
 # Guia de desarrollo
 Bitácora de Desarrollo - Proyecto NuevaMente.md
+
+# Archivos de la base de datos vectorial
+vectorstore/
