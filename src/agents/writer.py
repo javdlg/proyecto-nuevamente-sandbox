@@ -22,14 +22,19 @@ def writer_node(state: AgentState) -> dict:
     user_profile = state.get("user_profile", "General Audience")
     output_format = state.get("output_format", "Summary")
     retrieved_docs = state.get("retrieved_docs", [])
+    review_feedback = state.get("review_feedback", "")
 
     # 2. Combine retrieved documents into a single context string
     context = "\n\n".join([doc.page_content for doc in retrieved_docs])
 
+    # Include reviewer feedback if it exists (for the revision loop)
+    feedback_section = (
+        f"\n\nCRITICAL FEEDBACK FROM REVIEWER TO FIX IN THIS NEW DRAFT:\n{review_feedback}\n"
+        if review_feedback
+        else ""
+    )
+
     # 3. Initialize the LLM
-    # We use GEMINI_PRO for high-quality pedagogical writing and reasoning.
-    # Temperature 0.4 gives a good balance: creative enough for formats like "Flashcards",
-    # but strict enough to stick to the facts.
     llm = ChatGoogleGenerativeAI(
         model=GEMINI_PRO,
         api_key=SecretStr(GEMINI_API_KEY) if GEMINI_API_KEY else None,
@@ -54,7 +59,7 @@ TECHNICAL CONTEXT:
 {context}
 """,
             ),
-            ("human", "Topic to explain: {query}"),
+            ("human", "Topic to explain: {query}{feedback_section}"),
         ]
     )
 
@@ -66,6 +71,7 @@ TECHNICAL CONTEXT:
             "output_format": output_format,
             "context": context,
             "query": query,
+            "feedback_section": feedback_section,
         }
     )
 
