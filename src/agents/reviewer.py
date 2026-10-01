@@ -1,5 +1,6 @@
 import os
 import sys
+from typing import cast
 
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_google_genai import ChatGoogleGenerativeAI
@@ -10,7 +11,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from state import AgentState
 from the_keys import GEMINI_API_KEY
-from the_models import GEMINI_GENERACION
+from the_models import GEMINI_LIGERO
 
 
 # Definimos la salida estructurada usando Pydantic (Hito 4)
@@ -40,9 +41,9 @@ def reviewer_node(state: AgentState) -> dict:
 
     # 3. Inicializar el LLM (Usamos temperatura=0.0 para una evaluación estricta y determinista)
     llm = ChatGoogleGenerativeAI(
-        model=GEMINI_GENERACION,
+        model=GEMINI_LIGERO,  # Usamos el modelo ligero para la revisión (originalmente va GEMINI_GENERACION, pero suele estar saturado)
         api_key=SecretStr(GEMINI_API_KEY) if GEMINI_API_KEY else None,
-        temperature=0.0,
+        # temperature=0.0,  # Deshabilitado temporalmente: flash-lite usa defaults fijos
     )
 
     # Forzar al LLM a devolver nuestro esquema Pydantic
@@ -73,7 +74,10 @@ CONTEXTO TÉCNICO:
 
     # 5. Construir y ejecutar la cadena
     chain = prompt | structured_llm
-    result = chain.invoke({"context": context, "query": query, "draft": current_draft})
+    result = cast(
+        ReviewResult,
+        chain.invoke({"context": context, "query": query, "draft": current_draft}),
+    )
 
     print(f"✅ [Agente Revisor] Evaluación completada. Puntaje: {result.score}")
 
