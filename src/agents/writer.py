@@ -5,8 +5,8 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_google_genai import ChatGoogleGenerativeAI
 from pydantic import SecretStr
 
-# Add src folder to path so it can find the_models and the_keys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+# Agregamos la carpeta src al path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from state import AgentState
 from the_keys import GEMINI_API_KEY
@@ -14,56 +14,56 @@ from the_models import GEMINI_GENERACION
 
 
 def writer_node(state: AgentState) -> dict:
-    """Node responsible for drafting pedagogical content based on retrieved context."""
-    print("✍️  [Writer Agent] Drafting content based on user profile and format...")
-
-    # 1. Extract inputs from the state
+    """Nodo responsable de redactar contenido pedagógico basado en el contexto recuperado."""
+    print("✍️  [Agente Redactor] Redactando contenido basado en el perfil y formato...")
+    
+    # 1. Extraer los datos del estado
     query = state.get("query", "")
-    user_profile = state.get("user_profile", "General Audience")
-    output_format = state.get("output_format", "Summary")
+    user_profile = state.get("user_profile", "Audiencia General")
+    output_format = state.get("output_format", "Resumen")
     retrieved_docs = state.get("retrieved_docs", [])
     review_feedback = state.get("review_feedback", "")
-
-    # 2. Combine retrieved documents into a single context string
+    
+    # 2. Combinar los documentos recuperados en un solo bloque de contexto
     context = "\n\n".join([doc.page_content for doc in retrieved_docs])
-
-    # Include reviewer feedback if it exists (for the revision loop)
+    
+    # Incluir los comentarios del revisor si existen (para el ciclo de corrección)
     feedback_section = (
-        f"\n\nCRITICAL FEEDBACK FROM REVIEWER TO FIX IN THIS NEW DRAFT:\n{review_feedback}\n"
+        f"\n\nCOMENTARIOS CRÍTICOS DEL REVISOR PARA CORREGIR EN ESTE NUEVO BORRADOR:\n{review_feedback}\n"
         if review_feedback
         else ""
     )
-
-    # 3. Initialize the LLM
+    
+    # 3. Inicializar el LLM
     llm = ChatGoogleGenerativeAI(
         model=GEMINI_GENERACION,
         api_key=SecretStr(GEMINI_API_KEY) if GEMINI_API_KEY else None,
         temperature=0.4,
     )
-
-    # 4. Create the Prompt Template (Role Prompting)
+    
+    # 4. Crear la plantilla del Prompt (Role Prompting en Español)
     prompt = ChatPromptTemplate.from_messages(
         [
             (
                 "system",
-                """You are an expert pedagogical writer and technical communicator. 
-Your task is to explain complex technical concepts in a clear, engaging, and highly accurate manner.
+                """Eres un redactor pedagógico experto y comunicador técnico. 
+Tu tarea es explicar conceptos técnicos complejos de una manera clara, atractiva y altamente precisa.
 
-INSTRUCTIONS:
-- You must adapt your tone, vocabulary, and depth to match the target User Profile: {user_profile}.
-- You must structure your response strictly in the requested Output Format: {output_format}.
-- CRITICAL: You must base your explanation EXCLUSIVELY on the provided Technical Context. 
-  Do not introduce outside facts or hallucinate features not mentioned in the context.
+INSTRUCCIONES:
+- Debes adaptar tu tono, vocabulario y profundidad para que coincida con el Perfil del Usuario objetivo: {user_profile}.
+- Debes estructurar tu respuesta estrictamente en el Formato Solicitado: {output_format}.
+- CRÍTICO: Debes basar tu explicación EXCLUSIVAMENTE en el Contexto Técnico proporcionado. 
+  No introduzcas datos externos ni inventes (alucines) características que no se mencionen en el contexto.
 
-TECHNICAL CONTEXT:
+CONTEXTO TÉCNICO:
 {context}
 """,
             ),
-            ("human", "Topic to explain: {query}{feedback_section}"),
+            ("human", "Tema a explicar: {query}{feedback_section}"),
         ]
     )
-
-    # 5. Build and invoke the chain
+    
+    # 5. Construir y ejecutar la cadena
     chain = prompt | llm
     response = chain.invoke(
         {
@@ -74,8 +74,8 @@ TECHNICAL CONTEXT:
             "feedback_section": feedback_section,
         }
     )
-
-    print("✅ [Writer Agent] Draft completed.")
-
-    # 6. Return the updated state
+    
+    print("✅ [Agente Redactor] Borrador completado.")
+    
+    # 6. Devolver el estado actualizado
     return {"current_draft": response.content}

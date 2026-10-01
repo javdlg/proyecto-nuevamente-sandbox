@@ -2,17 +2,17 @@ from typing import TypedDict, List
 from langchain_core.documents import Document
 
 class AgentState(TypedDict):
-    # --- Input Parameters ---
-    query: str               # Topic to query (e.g., "Virtual Cloud Network")
-    user_profile: str        # Target audience (e.g., "Beginner", "Architect")
-    output_format: str       # Format (e.g., "Flashcards", "Manual", "Summary")
+    # --- Parámetros de Entrada ---
+    query: str               # Tema a consultar (ej: "Virtual Cloud Network")
+    user_profile: str        # Público objetivo (ej: "Principiante", "Arquitecto")
+    output_format: str       # Formato deseado (ej: "Flashcards", "Resumen")
     
-    # --- Internal Graph State ---
-    retrieved_docs: List[Document] # Context extracted by the Researcher Agent
-    current_draft: str             # Text drafted by the Writer Agent
-    review_feedback: str           # Comments from the Reviewer Agent if errors are found
-    revision_attempts: int         # Counter to avoid infinite loops
+    # --- Estado Interno del Grafo ---
+    retrieved_docs: List[Document] # Contexto extraído por el Agente Investigador
+    current_draft: str             # Texto redactado por el Agente Redactor
+    review_feedback: str           # Comentarios del Agente Revisor si hay errores
+    revision_attempts: int         # Contador para evitar bucles infinitos
     
-    # --- Final Output ---
-    source_anchoring_score: float  # Fidelity score against the original source
-    final_content: str             # The polished and reviewed final text
+    # --- Salida Final ---
+    source_anchoring_score: float  # Puntaje de fidelidad respecto a la fuente original
+    final_content: str             # El texto final pulido y aprobado

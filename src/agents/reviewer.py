@@ -5,7 +5,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_google_genai import ChatGoogleGenerativeAI
 from pydantic import BaseModel, Field, SecretStr
 
-# Add src folder to path so it can find the_models and the_keys
+# Agregamos la carpeta src al path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from state import AgentState
@@ -13,71 +13,71 @@ from the_keys import GEMINI_API_KEY
 from the_models import GEMINI_GENERACION
 
 
-# Define the expected structured output using Pydantic (Hito 4)
+# Definimos la salida estructurada usando Pydantic (Hito 4)
 class ReviewResult(BaseModel):
     score: float = Field(
-        description="Fidelity score from 0.0 to 1.0. 1.0 means perfectly faithful to the context. Lower scores indicate hallucinations or errors."
+        description="Puntaje de fidelidad del 0.0 al 1.0. Un 1.0 significa que es perfectamente fiel al contexto. Puntajes bajos indican alucinaciones o errores."
     )
     feedback: str = Field(
-        description="Detailed feedback explaining the score and instructing the writer on what needs to be fixed. If score is 1.0, write 'Approved'."
+        description="Comentarios detallados explicando el puntaje e instruyendo al redactor sobre lo que debe corregir. Si el puntaje es 1.0, escribe 'Aprobado'."
     )
 
 
 def reviewer_node(state: AgentState) -> dict:
-    """Node responsible for reviewing the draft against the original context."""
+    """Nodo responsable de revisar el borrador contra el contexto original."""
     print(
-        "🕵️  [Reviewer Agent] Evaluating draft for hallucinations and pedagogical quality..."
+        "🕵️  [Agente Revisor] Evaluando el borrador en busca de alucinaciones y calidad pedagógica..."
     )
 
-    # 1. Extract inputs from the state
+    # 1. Extraer los datos del estado
     query = state.get("query", "")
     current_draft = state.get("current_draft", "")
     retrieved_docs = state.get("retrieved_docs", [])
     revision_attempts = state.get("revision_attempts", 0)
 
-    # 2. Combine retrieved documents into a single context string
+    # 2. Combinar los documentos en un solo bloque de contexto
     context = "\n\n".join([doc.page_content for doc in retrieved_docs])
 
-    # 3. Initialize the LLM (Using temperature=0.0 for strict, deterministic evaluation)
+    # 3. Inicializar el LLM (Usamos temperatura=0.0 para una evaluación estricta y determinista)
     llm = ChatGoogleGenerativeAI(
         model=GEMINI_GENERACION,
         api_key=SecretStr(GEMINI_API_KEY) if GEMINI_API_KEY else None,
         temperature=0.0,
     )
 
-    # Force the LLM to return our Pydantic schema
+    # Forzar al LLM a devolver nuestro esquema Pydantic
     structured_llm = llm.with_structured_output(ReviewResult)
 
-    # 4. Create the Prompt Template
+    # 4. Crear la plantilla del Prompt
     prompt = ChatPromptTemplate.from_messages(
         [
             (
                 "system",
-                """You are an expert Fact-Checker and Technical Reviewer.
-Your task is to evaluate a drafted text against the original Technical Context.
+                """Eres un experto Evaluador de Datos (Fact-Checker) y Revisor Técnico.
+Tu tarea es evaluar un texto borrador comparándolo con el Contexto Técnico original.
 
-INSTRUCTIONS:
-1. Compare the DRAFT with the TECHNICAL CONTEXT.
-2. Check for Hallucinations: Does the draft mention facts, features, or numbers not present in the context?
-3. Output a structured evaluation with a 'score' (0.0 to 1.0) and 'feedback'.
-4. If there are hallucinations or critical omissions, the score should be below 0.8.
-5. If the draft is completely faithful and accurate, give a high score (0.8 - 1.0).
+INSTRUCCIONES:
+1. Compara el BORRADOR con el CONTEXTO TÉCNICO.
+2. Busca Alucinaciones: ¿Menciona el borrador datos, características o números que no están presentes en el contexto?
+3. Devuelve una evaluación estructurada con un 'score' (0.0 a 1.0) y un 'feedback'.
+4. Si hay alucinaciones u omisiones críticas, el puntaje debe ser inferior a 0.8.
+5. Si el borrador es completamente fiel y preciso, otorga un puntaje alto (0.8 - 1.0).
 
-TECHNICAL CONTEXT:
+CONTEXTO TÉCNICO:
 {context}
 """,
             ),
-            ("human", "Topic: {query}\n\nDRAFT TO REVIEW:\n{draft}"),
+            ("human", "Tema: {query}\n\nBORRADOR A REVISAR:\n{draft}"),
         ]
     )
 
-    # 5. Build and invoke the chain
+    # 5. Construir y ejecutar la cadena
     chain = prompt | structured_llm
     result = chain.invoke({"context": context, "query": query, "draft": current_draft})
 
-    print(f"✅ [Reviewer Agent] Evaluation complete. Score: {result.score}")
+    print(f"✅ [Agente Revisor] Evaluación completada. Puntaje: {result.score}")
 
-    # 6. Return the updated state
+    # 6. Devolver el estado actualizado
     return {
         "source_anchoring_score": result.score,
         "review_feedback": result.feedback,
