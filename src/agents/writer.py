@@ -10,7 +10,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from state import AgentState
 from the_keys import GEMINI_API_KEY
-from the_models import GEMINI_GENERACION
+from the_models import GEMINI_LIGERO
 
 
 def writer_node(state: AgentState) -> dict:
@@ -36,9 +36,9 @@ def writer_node(state: AgentState) -> dict:
     
     # 3. Inicializar el LLM
     llm = ChatGoogleGenerativeAI(
-        model=GEMINI_GENERACION,
+        model=GEMINI_LIGERO, # Usamos el modelo ligero para la revisión (originalmente va GEMINI_GENERACION, pero suele estar saturado)
         api_key=SecretStr(GEMINI_API_KEY) if GEMINI_API_KEY else None,
-        temperature=0.4,
+        # temperature=0.4,  # Deshabilitado temporalmente: flash-lite usa defaults fijos
     )
     
     # 4. Crear la plantilla del Prompt (Role Prompting en Español)
@@ -77,5 +77,12 @@ CONTEXTO TÉCNICO:
     
     print("✅ [Agente Redactor] Borrador completado.")
     
-    # 6. Devolver el estado actualizado
-    return {"current_draft": response.content}
+    # 6. Extraer el texto limpio (flash-lite a veces devuelve una lista de bloques)
+    content = response.content
+    if isinstance(content, list):
+        # Extraemos solo el texto de los bloques
+        text_blocks = [block["text"] for block in content if isinstance(block, dict) and "text" in block]
+        content = "\n".join(text_blocks) if text_blocks else str(content)
+    
+    # 7. Devolver el estado actualizado
+    return {"current_draft": content}
