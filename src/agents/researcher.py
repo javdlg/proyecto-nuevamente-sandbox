@@ -1,32 +1,18 @@
 import os
 import sys
 
-from langchain_community.vectorstores import FAISS
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
-from pydantic import SecretStr
-
 # Add src folder to path so it can find the_models and the_keys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from state import AgentState
-from the_keys import GEMINI_API_KEY
-from the_models import GEMINI_EMBEDDINGS
 
 
 def get_retriever():
     """Initializes and returns the retriever pointing to our local vector base."""
-    embeddings_model = GoogleGenerativeAIEmbeddings(
-        model=GEMINI_EMBEDDINGS,
-        api_key=SecretStr(GEMINI_API_KEY) if GEMINI_API_KEY else None,
-    )
-
-    # Load the vector database generated in Phase 2
-    # We use allow_dangerous_deserialization=True because it's a trusted local file
-    vectorstore = FAISS.load_local(
-        folder_path="vectorstore",
-        embeddings=embeddings_model,
-        allow_dangerous_deserialization=True,
-    )
+    from chunk_embeddings import cargar_vectorstore
+    
+    # Load the vector database generated in Phase 2 using the unified function
+    vectorstore = cargar_vectorstore()
 
     return vectorstore.as_retriever(
         search_type="similarity_score_threshold",
