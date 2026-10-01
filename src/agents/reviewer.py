@@ -10,7 +10,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from state import AgentState
 from the_keys import GEMINI_API_KEY
-from the_models import GEMINI_PRO
+from the_models import GEMINI_GENERACION
 
 
 # Define the expected structured output using Pydantic (Hito 4)
@@ -40,7 +40,7 @@ def reviewer_node(state: AgentState) -> dict:
 
     # 3. Initialize the LLM (Using temperature=0.0 for strict, deterministic evaluation)
     llm = ChatGoogleGenerativeAI(
-        model=GEMINI_PRO,
+        model=GEMINI_GENERACION,
         api_key=SecretStr(GEMINI_API_KEY) if GEMINI_API_KEY else None,
         temperature=0.0,
     )
